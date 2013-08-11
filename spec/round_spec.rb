@@ -7,7 +7,7 @@ describe Round do
 	let(:player) { Player.new }
 
 	it "should capture comeout roll between 2 and 12" do
-	  round.comeout_roll
+	  round.comeout_roll(player)
 	  round.roll_result.should be >= 2
 	  round.roll_result.should be <= 12
 	end
@@ -16,7 +16,7 @@ describe Round do
 		
 		Dice.any_instance.stub(:roll).and_return [5,6]
 
-		round.comeout_roll
+		round.comeout_roll(player)
 		round.roll_result.should == 11
 	end
 
@@ -25,7 +25,7 @@ describe Round do
 		[[5,6], [3,4]].each do |dice|
 			Dice.any_instance.stub(:roll).and_return dice 
 	
-			round.comeout_roll
+			round.comeout_roll(player)
 			round.state.should == 'player_win_natural'
 		end
 	end
@@ -34,7 +34,7 @@ describe Round do
 		[[1,1], [1,2], [6,6]].each do |dice|
 			Dice.any_instance.stub(:roll).and_return dice
 
-			round.comeout_roll
+			round.comeout_roll(player)
 			round.state.should == 'player_loss_craps'
 		end
 	end
@@ -43,7 +43,7 @@ describe Round do
 
 		Dice.any_instance.stub(:roll).and_return [1,4]
 
-		round.comeout_roll
+		round.comeout_roll(player)
 		round.state.should == 'point'
 	end
 
@@ -51,17 +51,19 @@ describe Round do
 
 		Dice.any_instance.stub(:roll).and_return [1,1]
 
-		round.comeout_roll
+		round.comeout_roll(player)
 		round.point == round.roll_result
 	end
 
+
 	it 'is a player win if point is hit' do
 
-		Dice.any_instance.stub(:roll).and_return [1,2]
+		Dice.any_instance.stub(:roll).and_return [4,4]
 
-		round.point = 3
+		player.pass_bet = 5
+		round.point = 8
 		round.point_roll(player)
-		round.state.should == 'player_win'
+		round.state.should == 'player_win_point'
 	end
 
 	it 'is a player loss if seven-out' do
@@ -69,7 +71,7 @@ describe Round do
 		Dice.any_instance.stub(:roll).and_return [3,4]
 
 		round.point_roll(player)
-		round.state.should == 'player_loss'
+		round.state.should == 'player_loss_point'
 	end
 
 end
