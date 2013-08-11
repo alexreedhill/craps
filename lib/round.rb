@@ -11,10 +11,10 @@ class Round
 		@roll_result = roll[0] + roll[1]
 
 		if @roll_result == 7 || @roll_result == 11
-			@state = 'player_win_natural'
+			@state = 'natural'
 			natural_payout(player.chip_count, player.pass_bet)
 		elsif @roll_result == 2 || @roll_result == 3 || @roll_result == 12
-			@state = 'player_loss_craps'
+			@state = 'craps'
 		else 
 			@state = 'point'
 		end
@@ -27,13 +27,13 @@ class Round
 		@roll_result = roll[0] + roll[1]
 
 		if @roll_result == @point
-			@state = 'player_win_point'
+			@state = 'pass'
 		elsif @roll_result == 7 
-			@state = 'player_loss_point'
+			@state = 'seven_out'
 		end
 
-		if @state == 'player_win_point'
-			player_point_win_payout(player, @roll_result)
+		if @state == 'pass'
+			pass_win_payout(player, @roll_result)
 		end
 
 		place_come_bet(player, @roll_result) if player.pending_come_bet_amount
@@ -42,7 +42,10 @@ class Round
 	end
 
 	def place_come_bet(player, roll_result)
-		player.come_bets = [{:amount => player.pending_come_bet_amount, :point => roll_result}]
+		unless roll_result == 2 || roll_result == 3 || roll_result == 12
+			come_bet = {:amount => player.pending_come_bet_amount, :point => roll_result}
+			player.come_bets = player.come_bets << come_bet
+		end
 		return player.come_bets
 	end
 
@@ -50,8 +53,7 @@ class Round
 		chip_count += (2 * amount.to_i)
 	end
 
-	def pass_bet_payout(player, roll_result)
-		bet = player.pass_bet
+	def pass_bet_payout(player, roll_result, bet)
 		if roll_result == 6 || roll_result == 8
 			@payout = (bet * 1.2) + bet
 		elsif roll_result == 5 || roll_result == 9
@@ -91,9 +93,10 @@ class Round
 		return @payout
 	end
 
-	def player_point_win_payout(player, roll_result)
+	def pass_win_payout(player, roll_result)
 		@payout = 0
-		@payout += pass_bet_payout(player, roll_result)
+		@payout += pass_bet_payout(player, roll_result, player.pass_bet)
+		@payout += pass_bet_payout(player, roll_result, player.pass_odds) if player.pass_odds
 		@payout += pay_all_come_bets(player)
 		return @payout
 	end

@@ -6,9 +6,9 @@ describe Player do
 	let(:player) { Player.new }
 	let(:round) { Round.new }
 
-	it 'places line bet' do
+	it 'places pass line bet' do
 		
-		player.make_line_bet('pass', 5)
+		player.make_pass_bet('pass', 5)
 		player.chip_count.should == 95
 		
 	end
@@ -28,6 +28,13 @@ describe Player do
 		player.come_bets = round.place_come_bet(player, roll_result)
 		player.come_bets.should == [{:amount =>5,:point =>8}]
 
+	end
+
+	it 'places odds on pass line bet' do
+
+		player.pass_bet = 5
+		player.place_pass_odds(player.pass_bet * 2)
+		player.pass_odds.should == 10
 	end
 
 end

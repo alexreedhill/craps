@@ -26,7 +26,7 @@ describe Round do
 			Dice.any_instance.stub(:roll).and_return dice 
 	
 			round.comeout_roll(player)
-			round.state.should == 'player_win_natural'
+			round.state.should == 'natural'
 		end
 	end
 
@@ -35,7 +35,7 @@ describe Round do
 			Dice.any_instance.stub(:roll).and_return dice
 
 			round.comeout_roll(player)
-			round.state.should == 'player_loss_craps'
+			round.state.should == 'craps'
 		end
 	end
 
@@ -63,7 +63,7 @@ describe Round do
 		player.pass_bet = 5
 		round.point = 8
 		round.point_roll(player)
-		round.state.should == 'player_win_point'
+		round.state.should == 'pass'
 	end
 
 	it 'is a player loss if seven-out' do
@@ -71,12 +71,11 @@ describe Round do
 		Dice.any_instance.stub(:roll).and_return [3,4]
 
 		round.point_roll(player)
-		round.state.should == 'player_loss_point'
+		round.state.should == 'seven_out'
 	end
 
 	it 'pays correct amount on natural' do
-		player.make_line_bet('pass', 5)
-		round.state = 'player_win_natural'
+		player.make_pass_bet('pass', 5)
 		player.chip_count = round.natural_payout(player.chip_count, 5)
 		player.chip_count.should == 105
 
@@ -96,24 +95,44 @@ describe Round do
 		player.come_bets = [{:amount => 5, :point => 6}, {:amount => 10, :point => 8}]
 		player.pass_bet = 10
 		player.chip_count = 75
-		player.chip_count += round.player_point_win_payout(player, 6)
+		player.chip_count += round.pass_win_payout(player, 6)
 		player.chip_count.should == 130
 	end
 
 	it 'pays correct odds on 5,9 point bets' do
-		player.pass_bet = 5
-		player.come_bets = [{:amount => 5, :point => 5}]
-		player.chip_count = 90
-		player.chip_count += round.player_point_win_payout(player, 5)
-		player.chip_count.should == 115
+		[5,9].each do |roll_result|
+			player.pass_bet = 5
+			player.come_bets = [{:amount => 5, :point => 5}]
+			player.chip_count = 90
+			player.chip_count += round.pass_win_payout(player, 5)
+			player.chip_count.should == 115
+		end
 	end
 
 	it 'pays correct odds on 4, 10 point bets' do
+		[4,10].each do |roll_result|
+			player.pass_bet = 5
+			player.come_bets = [{:amount => 5, :point => 4}]
+			player.chip_count = 90
+			player.chip_count += round.pass_win_payout(player, 4)
+			player.chip_count.should == 120
+		end
+	end
+
+	it 'rejects come bet if 2,3,12' do
+		[2,3,12].each do |roll_result|
+
+			come_bets = round.place_come_bet(player, roll_result)
+			come_bets.should == []
+		end
+	end
+
+	it 'pays pass bet with odds' do
 		player.pass_bet = 5
-		player.come_bets = [{:amount => 5, :point => 4}]
-		player.chip_count = 90
-		player.chip_count += round.player_point_win_payout(player, 4)
-		player.chip_count.should == 120
+		player.pass_odds = 10
+		player.chip_count = 85
+		player.chip_count += round.pass_win_payout(player, 4)
+		player.chip_count.should == 130
 	end
 
 end
