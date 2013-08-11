@@ -7,13 +7,16 @@ describe Round do
 	let(:player) { Player.new }
 
 	it "should capture comeout roll between 2 and 12" do
+		player.pass_bet = 5
+
 	  round.comeout_roll(player)
 	  round.roll_result.should be >= 2
 	  round.roll_result.should be <= 12
 	end
 
 	it 'adds dice' do 
-		
+
+		player.pass_bet = 5
 		Dice.any_instance.stub(:roll).and_return [5,6]
 
 		round.comeout_roll(player)
@@ -21,6 +24,8 @@ describe Round do
 	end
 
 	it 'is a player win if natural on comeout roll' do
+
+		player.pass_bet = 5
 	
 		[[5,6], [3,4]].each do |dice|
 			Dice.any_instance.stub(:roll).and_return dice 
@@ -75,8 +80,8 @@ describe Round do
 	end
 
 	it 'pays correct amount on natural' do
-		player.make_pass_bet('pass', 5)
-		player.chip_count = round.natural_payout(player.chip_count, 5)
+		player.make_pass_bet(5)
+		player.chip_count += round.pass_line_payout(player, 5)
 		player.chip_count.should == 105
 
 	end
@@ -90,33 +95,29 @@ describe Round do
 
 	end
 
-	it 'pays correct amount on player win' do 
+	it 'pays correct amount on pass' do 
 
 		player.come_bets = [{:amount => 5, :point => 6}, {:amount => 10, :point => 8}]
 		player.pass_bet = 10
 		player.chip_count = 75
 		player.chip_count += round.pass_win_payout(player, 6)
-		player.chip_count.should == 130
+		player.chip_count.should == 128
 	end
 
 	it 'pays correct odds on 5,9 point bets' do
-		[5,9].each do |roll_result|
 			player.pass_bet = 5
 			player.come_bets = [{:amount => 5, :point => 5}]
 			player.chip_count = 90
 			player.chip_count += round.pass_win_payout(player, 5)
-			player.chip_count.should == 115
-		end
+			player.chip_count.should == 112.5
 	end
 
 	it 'pays correct odds on 4, 10 point bets' do
-		[4,10].each do |roll_result|
-			player.pass_bet = 5
-			player.come_bets = [{:amount => 5, :point => 4}]
-			player.chip_count = 90
-			player.chip_count += round.pass_win_payout(player, 4)
-			player.chip_count.should == 120
-		end
+		player.pass_bet = 5
+		player.come_bets = [{:amount => 5, :point => 4}]
+		player.chip_count = 90
+		player.chip_count += round.pass_win_payout(player, 4)
+		player.chip_count.should == 115
 	end
 
 	it 'rejects come bet if 2,3,12' do
@@ -132,7 +133,23 @@ describe Round do
 		player.pass_odds = 10
 		player.chip_count = 85
 		player.chip_count += round.pass_win_payout(player, 4)
-		player.chip_count.should == 130
+		player.chip_count.should == 125
 	end
+
+	it 'pays single come bet with odds' do
+		player.come_bets = [{:amount => 10, :point => 6, :odds => 20}]
+		player.chip_count = 70
+		player.chip_count += round.come_bet_payout(player, 6)
+		player.chip_count.should == 136
+	end
+
+	it 'pays multiple come bets with odds on pass' do
+		player.pass_bet = 5
+		player.come_bets = [{:amount => 10, :point => 9, :odds => 20}, 
+												{:amount => 5, :point => 4, :odds => 10}]
+		player.chip_count = 50
+		player.chip_count += round.pass_win_payout(player, 6)
+		player.chip_count.should == 180
+	end	
 
 end

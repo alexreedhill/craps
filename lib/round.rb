@@ -5,6 +5,18 @@ class Round
 	attr_accessor :point
 	attr_accessor :payout
 
+	PAYOUT_TABLE = {
+	  4    => 2,
+	  5    => 1.5,
+	  6    => 1.2,
+	  8    => 1.2,
+	  9		 => 1.5,
+	  10	 => 2
+	}.freeze
+
+	def initialize
+		@payout = 0
+	end	
 
 	def comeout_roll(player)
 		roll = Dice.new.roll
@@ -12,7 +24,7 @@ class Round
 
 		if @roll_result == 7 || @roll_result == 11
 			@state = 'natural'
-			natural_payout(player.chip_count, player.pass_bet)
+			pass_line_payout(player, @roll_result)
 		elsif @roll_result == 2 || @roll_result == 3 || @roll_result == 12
 			@state = 'craps'
 		else 
@@ -49,31 +61,22 @@ class Round
 		return player.come_bets
 	end
 
-	def natural_payout(chip_count, amount)
-		chip_count += (2 * amount.to_i)
+	def pass_line_payout(player, roll_result)
+		@payout = 0
+		@payout = (2 * player.pass_bet)
 	end
 
-	def pass_bet_payout(player, roll_result, bet)
-		if roll_result == 6 || roll_result == 8
-			@payout = (bet * 1.2) + bet
-		elsif roll_result == 5 || roll_result == 9
-			@payout = (bet * 1.5) + bet
-		elsif roll_result == 4 || roll_result == 10
-			@payout = (bet * 2) + bet	
-		end
+	def pass_odds_payout(player, roll_result)
+		@payout = 0
+		@payout = (player.pass_odds * PAYOUT_TABLE[roll_result]) + player.pass_odds
 	end
 
 	def come_bet_payout(player, roll_result)
 		@payout = 0
 		player.come_bets.each do |bet|
 			if bet[:point] == roll_result
-				if bet[:point] == 6 || bet[:point] == 8
-					@payout = (bet[:amount] * 1.2) + bet[:amount]
-				elsif bet[:point] == 5 || bet[:point] == 9
-					@payout = (bet[:amount] * 1.5) + bet[:amount]
-				elsif bet[:point] == 4 || bet[:point] == 10
-					@payout += (bet[:amount] * 2) + bet[:amount]
-				end
+				@payout = (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount]
+				@payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
 			end
 		end
 		return @payout
@@ -82,21 +85,15 @@ class Round
 	def pay_all_come_bets(player)
 		@payout = 0
 		player.come_bets.each do |bet|
-			if bet[:point] == 6 || bet[:point] == 8
-				@payout += (bet[:amount] * 1.2) + bet[:amount]
-			elsif bet[:point] == 5 || bet[:point] == 9
-				@payout += (bet[:amount] * 1.5) + bet[:amount]
-			elsif bet[:point] == 4 || bet[:point] == 10
-				@payout += (bet[:amount] * 2) + bet[:amount]
-			end
+			@payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount]
+			@payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
 		end
 		return @payout
 	end
 
 	def pass_win_payout(player, roll_result)
-		@payout = 0
-		@payout += pass_bet_payout(player, roll_result, player.pass_bet)
-		@payout += pass_bet_payout(player, roll_result, player.pass_odds) if player.pass_odds
+		@payout += pass_line_payout(player, roll_result)
+		@payout += pass_odds_payout(player, roll_result) if player.pass_odds
 		@payout += pay_all_come_bets(player)
 		return @payout
 	end

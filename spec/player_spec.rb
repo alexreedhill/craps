@@ -8,7 +8,7 @@ describe Player do
 
 	it 'places pass line bet' do
 		
-		player.make_pass_bet('pass', 5)
+		player.make_pass_bet(5)
 		player.chip_count.should == 95
 		
 	end
@@ -33,8 +33,15 @@ describe Player do
 	it 'places odds on pass line bet' do
 
 		player.pass_bet = 5
-		player.place_pass_odds(player.pass_bet * 2)
+		player.place_pass_odds
 		player.pass_odds.should == 10
+	end
+
+	it 'places odds on come bet' do
+		player.come_bets = [{:amount => 5, :point => 6}, {:amount => 10, :point => 9}]
+		player.place_come_odds(player.come_bets[0])
+		player.place_come_odds(player.come_bets[1])
+		player.come_bets.should == [{:amount => 5, :point => 6, :odds => 10}, {:amount => 10, :point => 9, :odds => 20}]
 	end
 
 end

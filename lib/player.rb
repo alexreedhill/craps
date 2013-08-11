@@ -14,8 +14,8 @@ class Player
 		@come_bets || []
 	end
 
-	def make_pass_bet(type, amount)
-		@pass_bet = {type => amount}
+	def make_pass_bet(amount)
+		@pass_bet = amount
 		self.chip_count -= amount
 	end
 
@@ -24,8 +24,11 @@ class Player
 		self.chip_count -= amount
 	end
 
-	def place_pass_odds(amount)
+	def place_pass_odds
 		@pass_odds = 2 * pass_bet
 	end
 
+	def place_come_odds(bet)
+		bet[:odds] = 2 * bet[:amount]
+	end
 end
