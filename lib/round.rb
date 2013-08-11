@@ -53,7 +53,11 @@ class Round
 	def pass_bet_payout(player, roll_result)
 		bet = player.pass_bet
 		if roll_result == 6 || roll_result == 8
-			@payout = (bet * 1.2).round + bet
+			@payout = (bet * 1.2) + bet
+		elsif roll_result == 5 || roll_result == 9
+			@payout = (bet * 1.5) + bet
+		elsif roll_result == 4 || roll_result == 10
+			@payout = (bet * 2) + bet	
 		end
 	end
 
@@ -62,7 +66,11 @@ class Round
 		player.come_bets.each do |bet|
 			if bet[:point] == roll_result
 				if bet[:point] == 6 || bet[:point] == 8
-					@payout = (bet[:amount] * 1.2).round + bet[:amount]
+					@payout = (bet[:amount] * 1.2) + bet[:amount]
+				elsif bet[:point] == 5 || bet[:point] == 9
+					@payout = (bet[:amount] * 1.5) + bet[:amount]
+				elsif bet[:point] == 4 || bet[:point] == 10
+					@payout += (bet[:amount] * 2) + bet[:amount]
 				end
 			end
 		end
@@ -73,7 +81,11 @@ class Round
 		@payout = 0
 		player.come_bets.each do |bet|
 			if bet[:point] == 6 || bet[:point] == 8
-				@payout += (bet[:amount] * 1.2).round + bet[:amount]
+				@payout += (bet[:amount] * 1.2) + bet[:amount]
+			elsif bet[:point] == 5 || bet[:point] == 9
+				@payout += (bet[:amount] * 1.5) + bet[:amount]
+			elsif bet[:point] == 4 || bet[:point] == 10
+				@payout += (bet[:amount] * 2) + bet[:amount]
 			end
 		end
 		return @payout

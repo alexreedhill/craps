@@ -74,4 +74,46 @@ describe Round do
 		round.state.should == 'player_loss_point'
 	end
 
+	it 'pays correct amount on natural' do
+		player.make_line_bet('pass', 5)
+		round.state = 'player_win_natural'
+		player.chip_count = round.natural_payout(player.chip_count, 5)
+		player.chip_count.should == 105
+
+	end
+
+	it 'pays correct amount on come bet' do
+
+		player.come_bets = [{:amount => 5, :point => 8}]
+		player.chip_count = 95
+		player.chip_count += round.come_bet_payout(player, 8)
+		player.chip_count.should == 106
+
+	end
+
+	it 'pays correct amount on player win' do 
+
+		player.come_bets = [{:amount => 5, :point => 6}, {:amount => 10, :point => 8}]
+		player.pass_bet = 10
+		player.chip_count = 75
+		player.chip_count += round.player_point_win_payout(player, 6)
+		player.chip_count.should == 130
+	end
+
+	it 'pays correct odds on 5,9 point bets' do
+		player.pass_bet = 5
+		player.come_bets = [{:amount => 5, :point => 5}]
+		player.chip_count = 90
+		player.chip_count += round.player_point_win_payout(player, 5)
+		player.chip_count.should == 115
+	end
+
+	it 'pays correct odds on 4, 10 point bets' do
+		player.pass_bet = 5
+		player.come_bets = [{:amount => 5, :point => 4}]
+		player.chip_count = 90
+		player.chip_count += round.player_point_win_payout(player, 4)
+		player.chip_count.should == 120
+	end
+
 end
