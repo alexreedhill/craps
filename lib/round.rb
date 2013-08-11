@@ -32,6 +32,7 @@ class Round
 		end
 
 		@point = @roll_result
+		return roll
 	end
 
 	def point_roll(player)
@@ -92,6 +93,7 @@ class Round
 	end
 
 	def pass_win_payout(player, roll_result)
+		@payout = 0
 		@payout += pass_line_payout(player, roll_result)
 		@payout += pass_odds_payout(player, roll_result) if player.pass_odds
 		@payout += pay_all_come_bets(player)
