@@ -3,8 +3,8 @@ require 'dice'
 require 'player'
 
 describe Round do
-	let(:round) { Round.new }
 	let(:player) { Player.new }
+	let(:round) { Round.new }
 
 	it "should capture comeout roll between 2 and 12" do
 		player.pass_bet = 5
@@ -90,7 +90,8 @@ describe Round do
 
 		player.come_bets = [{:amount => 5, :point => 8}]
 		player.chip_count = 95
-		player.chip_count += round.come_bet_payout(player, 8)
+		update_player = round.come_bet_payout(player, 8)
+		player = update_player
 		player.chip_count.should == 106
 
 	end
@@ -139,7 +140,8 @@ describe Round do
 	it 'pays single come bet with odds' do
 		player.come_bets = [{:amount => 10, :point => 6, :odds => 20}]
 		player.chip_count = 70
-		player.chip_count += round.come_bet_payout(player, 6)
+		update_player = round.come_bet_payout(player, 6)
+		player = update_player
 		player.chip_count.should == 136
 	end
 

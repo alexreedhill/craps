@@ -5,6 +5,7 @@ class Player
 	attr_accessor :pass_bet
 	attr_accessor :pass_odds
 	attr_accessor :pending_come_bet_amount
+	attr_accessor :winning_come_bet
 
 	def chip_count
 		@chip_count || 100
@@ -20,7 +21,7 @@ class Player
 	end
 
 	def make_come_bet(amount) #TODO Bet should be returned to you if you hit the point
-		@pending_come_bet_amount = amount
+		self.pending_come_bet_amount = amount
 		self.chip_count -= amount
 	end
 
