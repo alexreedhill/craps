@@ -51,9 +51,36 @@ puts "Awesome, let's get started."
 def display_come_bets(player)
 	bets = []
 	player.come_bets.each do |bet|
-		bets = bets << "| #{bet[:amount]} dollars on #{bet[:point]} |"
+		bets = bets << "| $#{bet[:amount]} on #{bet[:point]} | "
 	end
 	return bets.join
+end
+
+
+def enforce_minimum(player, bet, phase, point, round)
+	if bet < 5
+		if phase == 'comeout'
+			puts "You must bet the minimum."
+			sleep(1)
+			player.pass_bet = nil
+			comeout_roll(player)
+		elsif phase == 'point'
+			puts 'You must bet the minimum.'
+			sleep(1)
+			come_bet_prompt(player, point, round, true)
+		else
+			point_roll(player, point, round)
+		end
+	end
+end
+
+def cashout_prompt(player, response)
+	if response == 'y'
+		comeout_roll(player)
+	else
+		puts "You cashed out with $#{player.chip_count}!"
+		abort
+	end
 end
 
 def point_roll(player, point, round)
@@ -73,22 +100,11 @@ def point_roll(player, point, round)
 		player.chip_count += round.pass_win_payout(player, roll_result)
 		puts "Congratulations! You just passed! Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
 		response = gets.chomp
-		if response == 'y'
-			player.come_bets = []
-			player.pass_bet = nil
-			round = Round.new
-			comeout_roll(player)
-		else
-			puts "You cashed out with $#{player.chip_count}!"
-		end
+		cashout_prompt(player, response)
 	elsif roll_result == 7
 		puts "Shoot! Seven out. Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
-		reponse = gets.chomp
-		if reponse == 'y'
-			comeout_roll(player)
-		else
-			puts "You cashed out with $#{player.chip_count}!"
-		end
+		response = gets.chomp
+		cashout_prompt(player, response)
 	else
 		update_player = round.come_bet_payout(player, roll_result)
 		player = update_player
@@ -102,35 +118,39 @@ def point_roll(player, point, round)
 		end
 		puts "Point is on #{round.point}. Your active come bets: #{display_come_bets(player)}  Your chip total is $#{player.chip_count}."
 		sleep(1)
-		come_bet_prompt(player, round.point, round)
+		come_bet_prompt(player, round.point, round, false)
 	end
 end
 
-def come_bet_prompt(player, point, round)
-	puts "Would you like you make a come bet? (y/n)"
-	response = gets.chomp
+def come_bet_prompt(player, point, round, skip)
+	response = 'y'
+	if skip == false
+		puts "Would you like you make a come bet? (y/n)"
+		response = gets.chomp
+	end
 	if response == 'y'
 		puts "How much would you like you bet on the come?"
 		come_bet = gets.chomp
+		enforce_minimum(player, come_bet.to_i, 'point', point, round)
 		player.chip_count = player.make_come_bet(come_bet.to_i)
 		puts "You just placed a $#{come_bet} bet on the come. Your new chip total is $#{player.chip_count}. Click enter to throw your next roll!"
 		point_roll(player, point, round)
 	else
 		puts 'Okay then. Click enter to throw your next roll!'
+		enter = gets
 		point_roll(player, point, round)
 	end
 end
-
-
 
 def comeout_roll(player)
 	player.come_bets = []
 	player.pass_bet = nil
 	round = Round.new
+	round.minimum = 5
 	puts "Pass line bet minimum is $5. How much would you like to bet?"
 	pass_bet = gets.chomp
+	enforce_minimum(player, pass_bet.to_i, 'comeout', nil, round)
 	player.make_pass_bet(pass_bet.to_i)
-
 	puts "You just placed a $#{pass_bet} bet on the pass line. Your new chip total is $#{player.chip_count}. Click enter to throw your come out roll!"
 	enter = gets.chomp
 	puts "Rolling the dice..."
@@ -149,21 +169,13 @@ def comeout_roll(player)
 		player.chip_count += round.pass_line_payout(player, roll_result)
 		puts "Congratulations! You just rolled a natural! Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
 		response = gets.chomp
-		if response == 'y'
-			comeout_roll(player)
-		else
-			puts "You cashed out with $#{player.chip_count}!"
-		end
+		cashout_prompt(player, response)
 	elsif roll_result == 2 || roll_result == 3 || roll_result == 12
 		puts "Shoot! You crapped out. Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
 		response = gets.chomp
-			if response == 'y'
-				comeout_roll(player)
-			else
-				puts "You cashed out with $#{player.chip_count}!"
-			end
+		cashout_prompt(player, response)
 	else
-		come_bet_prompt(player, roll_result, round)
+		come_bet_prompt(player, roll_result, round, false)
 	end
 end
 

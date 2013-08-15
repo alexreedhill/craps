@@ -4,6 +4,7 @@ class Round
 	attr_accessor :state
 	attr_accessor :point
 	attr_accessor :payout
+	attr_accessor :minimum
 
 	PAYOUT_TABLE = {
 	  4    => 2,
