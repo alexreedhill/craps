@@ -58,7 +58,7 @@ end
 
 
 def enforce_minimum(player, bet, phase, point, round)
-	if bet < 5
+	if bet < round.minimum
 		if phase == 'comeout'
 			puts "You must bet the minimum."
 			sleep(1)
@@ -66,6 +66,7 @@ def enforce_minimum(player, bet, phase, point, round)
 			comeout_roll(player)
 		elsif phase == 'point'
 			puts 'You must bet the minimum.'
+			player.pending_come_bet_amount = nil
 			sleep(1)
 			come_bet_prompt(player, point, round, true)
 		else
