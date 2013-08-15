@@ -26,10 +26,14 @@ class Player
 	end
 
 	def place_pass_odds
-		@pass_odds = 2 * pass_bet
+		self.pass_odds = 2 * pass_bet
+		self.chip_count -= self.pass_odds
+		return self
 	end
 
 	def place_come_odds(bet)
 		bet[:odds] = 2 * bet[:amount]
+		self.chip_count -= bet[:odds]
+		return self
 	end
 end

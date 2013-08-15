@@ -46,12 +46,12 @@ player = Player.new
 puts 'Hey friend, are you ready to play some craps?'
 response = gets.chomp
 puts "Awesome, let's get started."
-#sleep(1.5)
+sleep(1)
 
 def display_come_bets(player)
 	bets = []
 	player.come_bets.each do |bet|
-		bets = bets << "| $#{bet[:amount]} on #{bet[:point]} | "
+		bets = bets << "| $#{bet[:amount]} on #{bet[:point]} odds: #{"yes" if bet[:odds] == 10}#{"no" if bet[:odds] == nil} | "
 	end
 	return bets.join
 end
@@ -75,8 +75,33 @@ def enforce_minimum(player, bet, phase, point, round)
 	end
 end
 
+def odds_prompt(player, point, round)
+	puts "Would you like to place odds on your pass or come bets? (pass/come/n)"
+	response = gets.chomp
+	if response == 'pass'
+		update_player = player.place_pass_odds
+		player = update_player
+		puts "You have placed $#{player.pass_odds} odds on #{round.point}."
+		sleep(1)
+		odds_prompt(player, point, round)
+	elsif response == 'come'
+		puts "Your active come bets: #{display_come_bets(player)}"
+		sleep(1)
+		puts "Which come bet would you like to place odds on? (1-#{player.come_bets.count})"
+		response = gets.chomp.to_i - 1
+		bet = player.come_bets[response]
+		player = player.place_come_odds(bet)
+		puts "You just placed $#{bet[:odds]} odds on #{bet[:point]}."
+		sleep(1)
+		odds_prompt(player, point, round)
+	else
+		puts "Okay then. Click enter to throw your next roll!"
+		enter = gets.chomp
+	end 
+end
+
 def cashout_prompt(player, response)
-	if response == 'y'
+	unless response == 'n'
 		comeout_roll(player)
 	else
 		puts "You cashed out with $#{player.chip_count}!"
@@ -120,6 +145,7 @@ def point_roll(player, point, round)
 		puts "Point is on #{round.point}. Your active come bets: #{display_come_bets(player)}  Your chip total is $#{player.chip_count}."
 		sleep(1)
 		come_bet_prompt(player, round.point, round, false)
+		odds_prompt(player, point, round)
 	end
 end
 
@@ -134,10 +160,12 @@ def come_bet_prompt(player, point, round, skip)
 		come_bet = gets.chomp
 		enforce_minimum(player, come_bet.to_i, 'point', point, round)
 		player.chip_count = player.make_come_bet(come_bet.to_i)
-		puts "You just placed a $#{come_bet} bet on the come. Your new chip total is $#{player.chip_count}. Click enter to throw your next roll!"
+		puts "You just placed a $#{come_bet} bet on the come."
+		sleep(1)
+		odds_prompt(player, point, round)
 		point_roll(player, point, round)
 	else
-		puts 'Okay then. Click enter to throw your next roll!'
+		odds_prompt(player, point, round)
 		enter = gets
 		point_roll(player, point, round)
 	end
@@ -177,6 +205,7 @@ def comeout_roll(player)
 		cashout_prompt(player, response)
 	else
 		come_bet_prompt(player, roll_result, round, false)
+		odds_prompt(player, point, round)
 	end
 end
 
