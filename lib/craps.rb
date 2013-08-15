@@ -44,14 +44,14 @@ DICE = {
 player = Player.new
 
 puts 'Hey friend, are you ready to play some craps?'
-response = gets
+response = gets.chomp
 puts "Awesome, let's get started."
 #sleep(1.5)
 
-def display_come_bets(come_bets)
+def display_come_bets(player)
 	bets = []
-	come_bets.each do |bet|
-		bets << "| #{bet[:amount]} dollars on #{bet[:point]} |"
+	player.come_bets.each do |bet|
+		bets = bets << "| #{bet[:amount]} dollars on #{bet[:point]} |"
 	end
 	return bets.join
 end
@@ -70,7 +70,7 @@ def point_roll(player, point, round)
 	
 	if roll_result == point
 		round.state = 'pass'
-		player.chip_count += round.pass_line_payout(player, roll_result)
+		player.chip_count += round.pass_win_payout(player, roll_result)
 		puts "Congratulations! You just passed! Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
 		response = gets.chomp
 		if response == 'y'
@@ -90,36 +90,37 @@ def point_roll(player, point, round)
 			puts "You cashed out with $#{player.chip_count}!"
 		end
 	else
-		if player.pending_come_bet_amount
-			player.come_bets = round.place_come_bet(player, roll_result)
-			player.pending_come_bet_amount = nil
-		end
 		update_player = round.come_bet_payout(player, roll_result)
 		player = update_player
 		if player.winning_come_bet
 			puts "You just won $#{player.winning_come_bet[:amount]} on your come bet on #{player.winning_come_bet[:point]}. Your new chip total is $#{player.chip_count}"
 			sleep(2)
 		end
-		puts "Point is on #{round.point}. Your active come bets: #{display_come_bets(player.come_bets)}. Click enter to roll again"
-		enter = gets
+		if player.pending_come_bet_amount
+			player.come_bets = round.place_come_bet(player, roll_result)
+			player.pending_come_bet_amount = nil
+		end
+		puts "Point is on #{round.point}. Your active come bets: #{display_come_bets(player)}  Your chip total is $#{player.chip_count}."
+		sleep(1)
+		come_bet_prompt(player, round.point, round)
+	end
+end
+
+def come_bet_prompt(player, point, round)
+	puts "Would you like you make a come bet? (y/n)"
+	response = gets.chomp
+	if response == 'y'
+		puts "How much would you like you bet on the come?"
+		come_bet = gets.chomp
+		player.chip_count = player.make_come_bet(come_bet.to_i)
+		puts "You just placed a $#{come_bet} bet on the come. Your new chip total is $#{player.chip_count}. Click enter to throw your next roll!"
+		point_roll(player, point, round)
+	else
+		puts 'Okay then. Click enter to throw your next roll!'
 		point_roll(player, point, round)
 	end
 end
 
-def come_bet_prompt(player, roll_result, round)
-	puts "The point has been placed on #{roll_result}. Would you like you make a come bet? (y/n)"
-	response = gets.chomp
-	if response == 'y'
-		puts "How much would you like you bet on the come?"
-		come_bet = gets
-		player.make_come_bet(come_bet.to_i)
-		puts "You just placed a $#{player.pass_bet} bet on the come. Your new chip total is $#{player.chip_count}. Click enter to throw your next roll!"
-		point_roll(player, roll_result, round)
-	else
-		puts 'Okay then. Click enter to throw your next roll!'
-		point_roll(player, roll_result, round)
-	end
-end
 
 
 def comeout_roll(player)
@@ -127,11 +128,11 @@ def comeout_roll(player)
 	player.pass_bet = nil
 	round = Round.new
 	puts "Pass line bet minimum is $5. How much would you like to bet?"
-	pass_bet = gets
+	pass_bet = gets.chomp
 	player.make_pass_bet(pass_bet.to_i)
 
 	puts "You just placed a $#{pass_bet} bet on the pass line. Your new chip total is $#{player.chip_count}. Click enter to throw your come out roll!"
-	enter = gets
+	enter = gets.chomp
 	puts "Rolling the dice..."
 	dice = Dice.new.roll
 	roll_result = dice[0] + dice[1]

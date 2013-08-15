@@ -20,7 +20,7 @@ class Player
 		self.chip_count -= amount
 	end
 
-	def make_come_bet(amount) #TODO Bet should be returned to you if you hit the point
+	def make_come_bet(amount)
 		self.pending_come_bet_amount = amount
 		self.chip_count -= amount
 	end

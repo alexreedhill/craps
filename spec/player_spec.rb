@@ -44,4 +44,10 @@ describe Player do
 		player.come_bets.should == [{:amount => 5, :point => 6, :odds => 10}, {:amount => 10, :point => 9, :odds => 20}]
 	end
 
+	it 'throws out pending come bet on seven out' do 
+		player.pass_bet = 5
+		player.make_come_bet(5)
+		
+	end
+
 end
