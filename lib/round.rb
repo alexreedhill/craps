@@ -81,6 +81,7 @@ class Round
 					player.come_bets = player.come_bets << {:amount => player.pending_come_bet_amount, :point => roll_result}
 					player.pending_come_bet_amount = nil
 				end
+				break
 			end
 		end
 		player.chip_count += payout
