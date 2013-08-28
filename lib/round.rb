@@ -3,7 +3,6 @@ class Round
 	attr_accessor :roll_result
 	attr_accessor :state
 	attr_accessor :point
-	attr_accessor :payout
 	attr_accessor :minimum
 
 	PAYOUT_TABLE = {
@@ -46,26 +45,24 @@ class Round
 			pass_win_payout(player, @roll_result)
 		end
 
-		place_come_bet(player, @roll_result) if player.pending_come_bet_amount
+		place_come_bet(player, @roll_result) if player.pending_come_bet
 		come_bet_payout(player, @roll_result)
 		return @roll_result
 	end
 
 	def place_come_bet(player, roll_result)
 		unless roll_result == 2 || roll_result == 3 || roll_result == 12
-			come_bet = {:amount => player.pending_come_bet_amount, :point => roll_result}
+			come_bet = {:amount => player.pending_come_bet, :point => roll_result}
 			player.come_bets = player.come_bets << come_bet
 		end
 		return player.come_bets
 	end
 
 	def pass_line_payout(player, roll_result)
-		payout = 0
 		payout = (2 * player.pass_bet)
 	end
 
 	def pass_odds_payout(player, roll_result)
-		payout = 0
 		payout = (player.pass_odds * PAYOUT_TABLE[roll_result]) + player.pass_odds
 	end
 
@@ -77,9 +74,9 @@ class Round
 				payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
 				player.winning_come_bet = {:amount => payout, :point => roll_result}
 				player.come_bets.delete(bet)
-				if player.pending_come_bet_amount
-					player.come_bets = player.come_bets << {:amount => player.pending_come_bet_amount, :point => roll_result}
-					player.pending_come_bet_amount = nil
+				if player.pending_come_bet
+					player.come_bets = player.come_bets << {:amount => player.pending_come_bet, :point => roll_result}
+					player.pending_come_bet = nil
 				end
 				break
 			end
@@ -97,12 +94,16 @@ class Round
 		return payout
 	end
 
+	def pending_come_bet_payout(player)
+		payout = player.pending_come_bet * 2
+	end
+
 	def pass_win_payout(player, roll_result)
 		payout = 0
 		payout += pass_line_payout(player, roll_result)
 		payout += pass_odds_payout(player, roll_result) if player.pass_odds
 		payout += pay_all_come_bets(player)
-		payout += player.pending_come_bet_amount * 2 if player.pending_come_bet_amount
+		payout += pending_come_bet_payout(player) if player.pending_come_bet
 		return payout
 	end
 

@@ -152,6 +152,13 @@ describe Round do
 		player.chip_count = 50
 		player.chip_count += round.pass_win_payout(player, 6)
 		player.chip_count.should == 180
-	end	
+	end
+
+	it 'pays pending come bet on seven-out' do
+		player.pending_come_bet = 5
+		player.chip_count = 95
+		player.chip_count += round.pending_come_bet_payout(player)
+		player.chip_count.should == 105
+	end
 
 end

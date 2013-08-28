@@ -17,13 +17,13 @@ describe Player do
 
 			round.point = 6
 			player.make_come_bet(5)
-			player.pending_come_bet_amount.should == 5
+			player.pending_come_bet.should == 5
 
 	end
 
 	it 'places come bet after roll' do
 
-		player.pending_come_bet_amount = 5
+		player.pending_come_bet = 5
 		roll_result = 8
 		player.come_bets = round.place_come_bet(player, roll_result)
 		player.come_bets.should == [{:amount =>5,:point =>8}]

@@ -4,7 +4,7 @@ class Player
 	attr_writer :come_bets
 	attr_accessor :pass_bet
 	attr_accessor :pass_odds
-	attr_accessor :pending_come_bet_amount
+	attr_accessor :pending_come_bet
 	attr_accessor :winning_come_bet
 
 	def chip_count
@@ -21,7 +21,7 @@ class Player
 	end
 
 	def make_come_bet(amount)
-		self.pending_come_bet_amount = amount
+		self.pending_come_bet = amount
 		self.chip_count -= amount
 	end
 
