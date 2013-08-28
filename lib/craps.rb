@@ -52,7 +52,7 @@ class Craps
 	def display_come_bets(player)
 		bets = []
 		player.come_bets.each do |bet|
-			bets = bets << "| $#{bet[:amount]} on #{bet[:point]} odds: #{bet[:odds] == 10 ? yes : no} | "
+			bets = bets << "| $#{bet[:amount]} on #{bet[:point]} odds: #{bet[:odds] == 10 ? 'yes' : 'no'} | "
 		end
 		return bets.join
 	end
@@ -128,7 +128,7 @@ class Craps
 			response = gets.chomp
 			cashout_prompt(player, response)
 		elsif roll_result == 7
-			round.pending_come_bet_payout(player)
+			player.chip_count += round.pending_come_bet_payout(player) if player.pending_come_bet
 			puts "Shoot! Seven out. Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
 			response = gets.chomp
 			cashout_prompt(player, response)

@@ -71,10 +71,10 @@ class Round
 		player.come_bets.each do |bet|
 			if bet[:point] == roll_result
 				payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount] unless roll_result == 11
-				if state == 'point' && bet[:odds]
-					payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds]
-				elsif state == 'comeout' && bet[:odds]
-					payout += bet[:odds]
+				if state == 'point'
+					payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
+				elsif state == 'comeout'
+					payout += bet[:odds] if bet[:odds]
 				end
 				player.winning_come_bet = {:amount => payout, :point => roll_result}
 				player.come_bets.delete(bet)

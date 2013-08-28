@@ -156,7 +156,7 @@ describe Round do
 		round.comeout_roll(player)
 		player.come_bets.should == [{:amount => 10, :point => 9, :odds => 20}, {:amount => 5, :point => 4, :odds => 10}]
 	end
-
+	
 	it 'pays come bet but withdraws odds if hit on comeout roll' do
 		player.come_bets = [{:amount => 5, :point => 4, :odds => 10}]
 		player.chip_count = 85
