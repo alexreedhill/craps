@@ -46,7 +46,7 @@ class Round
 		end
 
 		place_come_bet(player, @roll_result) if player.pending_come_bet
-		come_bet_payout(player, @roll_result)
+		come_bet_payout(player, @roll_result, 'point')
 		return @roll_result
 	end
 
@@ -66,12 +66,16 @@ class Round
 		payout = (player.pass_odds * PAYOUT_TABLE[roll_result]) + player.pass_odds
 	end
 
-	def come_bet_payout(player, roll_result)
+	def come_bet_payout(player, roll_result, state)
 		payout = 0
 		player.come_bets.each do |bet|
 			if bet[:point] == roll_result
 				payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount] unless roll_result == 11
-				payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
+				if state == 'point' && bet[:odds]
+					payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds]
+				elsif state == 'comeout' && bet[:odds]
+					payout += bet[:odds]
+				end
 				player.winning_come_bet = {:amount => payout, :point => roll_result}
 				player.come_bets.delete(bet)
 				if player.pending_come_bet
@@ -85,15 +89,6 @@ class Round
 		return player
 	end
 
-	def pay_all_come_bets(player)
-		payout = 0
-		player.come_bets.each do |bet|
-			payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount]
-			payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
-		end
-		return payout
-	end
-
 	def pending_come_bet_payout(player)
 		payout = player.pending_come_bet * 2
 	end
@@ -102,7 +97,6 @@ class Round
 		payout = 0
 		payout += pass_line_payout(player, roll_result)
 		payout += pass_odds_payout(player, roll_result) if player.pass_odds
-		payout += pay_all_come_bets(player)
 		payout += pending_come_bet_payout(player) if player.pending_come_bet
 		return payout
 	end

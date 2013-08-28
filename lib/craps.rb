@@ -133,7 +133,7 @@ class Craps
 			response = gets.chomp
 			cashout_prompt(player, response)
 		else
-			update_player = round.come_bet_payout(player, roll_result)
+			update_player = round.come_bet_payout(player, roll_result, 'point')
 			player = update_player
 			if player.winning_come_bet
 				puts "You just won $#{player.winning_come_bet[:amount]} on your come bet on #{player.winning_come_bet[:point]}. Your new chip total is $#{player.chip_count}"
