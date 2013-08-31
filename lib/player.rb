@@ -6,6 +6,7 @@ class Player
 	attr_accessor :pass_odds
 	attr_accessor :pending_come_bet
 	attr_accessor :winning_come_bet
+	attr_accessor :come_odds
 
 	def chip_count
 		@chip_count || 100
@@ -14,7 +15,7 @@ class Player
 	def come_bets
 		@come_bets || []
 	end
-
+	
 	def make_pass_bet(amount)
 		@pass_bet = amount
 		self.chip_count -= amount
