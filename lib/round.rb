@@ -72,7 +72,7 @@ class Round
 			if bet[:point] == roll_result
 				payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount] unless roll_result == 11
 				if state == 'point'
-					payout += (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] if bet[:odds]
+					payout += !!bet[:odds] ? (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] : 0
 				elsif state == 'comeout'
 					payout += bet[:odds] if bet[:odds]
 				end
