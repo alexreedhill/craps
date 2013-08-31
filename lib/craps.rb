@@ -55,7 +55,7 @@ class Craps
 	def display_come_bets(player)
 		bets = []
 		player.come_bets.each do |bet|
-			bets = bets << "| $#{bet[:amount]} on #{bet[:point]} odds: #{bet[:odds] == 10 ? 'yes' : 'no'} | "
+			bets = bets << "$#{bet[:amount]} on #{bet[:point]} odds: #{bet[:odds] == 10 ? 'yes' : 'no'} | "
 		end
 		return bets.join
 	end
@@ -208,7 +208,6 @@ class Craps
 			point_roll(player, round)
 		else
 			odds_prompt(player, round)
-			enter = gets
 			point_roll(player, round)
 		end
 	end
