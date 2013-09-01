@@ -129,10 +129,11 @@ class Craps
 		come_odds = [nil] if come_odds == []
 		unless !!player.pass_odds && come_odds.compact.count == come_bets.count
 			puts "Would you like to place odds on your pass or come bets? (pass/come/n)"
-			response = gets.chomp
-			if response == 'pass'
+			responses = []
+			responses << gets.chomp
+			if responses.last == 'pass'
 				pass_odds_prompt(player, round)
-			elsif response == 'come'
+			elsif responses.last == 'come'
 				come_odds_prompt(player, round)
 			end
 		end
@@ -209,7 +210,7 @@ class Craps
 		cashout_prompt(player)
 	end
 
-	def craps(player, roll_result, round)
+	def craps(player)
 		puts "Shoot! You crapped out. Your new chip total is $#{player.chip_count}. Would you like to play another round? (y/n)"
 		cashout_prompt(player)
 	end
@@ -270,7 +271,7 @@ class Craps
 		if roll_result == 7 || roll_result == 11
 			natural(player, roll_result, round)
 		elsif roll_result == 2 || roll_result == 3 || roll_result == 12
-			craps(player, roll_result, round)
+			craps(player)
 		else
 			odds_prompt(player, round)
 			come_bet_prompt(player, round, false)
