@@ -46,7 +46,7 @@ class Craps
 
 	def intro(player)	
 		puts 'Hey friend, are you ready to play some craps?'
-		response = STDIN.gets.chomp
+		response = gets.chomp
 		puts "Awesome, let's get started."
 		sleep(1)
 		new_round(player)

@@ -69,7 +69,7 @@ describe Round do
 	it 'pays single come bet with odds' do
 		player.come_bets = [{:amount => 10, :point => 6, :odds => 20}]
 		player.chip_count = 70
-		update_player = round.come_bet_payout(player, 6, 'point')
+		update_player = round.come_bet_payout(player, 6, :point)
 		player = update_player
 		player.chip_count.should == 136
 	end
@@ -87,7 +87,7 @@ describe Round do
 	it 'pays come bet but withdraws odds if hit on comeout roll' do
 		player.come_bets = [{:amount => 5, :point => 4, :odds => 10}]
 		player.chip_count = 85
-		update_player = round.come_bet_payout(player, 4, 'comeout')
+		update_player = round.come_bet_payout(player, 4, :comeout)
 		player.chip_count.should == 110
 	end
 
