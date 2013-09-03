@@ -55,7 +55,7 @@ class Craps
 	def display_come_bets(player)
 		bets = []
 		player.come_bets.each do |bet|
-			bets = bets << "| $#{bet[:amount]} on #{bet[:point]} odds: #{bet[:odds] == bet[:amount] * 2 ? 'yes' : 'no'} | "
+			bets << "| $#{bet[:amount]} on #{bet[:point]} odds: #{bet[:odds] == bet[:amount] * 2 ? 'yes' : 'no'} | "
 		end
 		return player.come_bets == [] ? 'none ' : bets.join
 	end

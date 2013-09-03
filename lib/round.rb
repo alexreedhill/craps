@@ -18,10 +18,10 @@ class Round
 		roll = Dice.new.roll
 		@roll_result = roll[0] + roll[1]
 
-		if @roll_result == 7 || @roll_result == 11
+		if [7, 11].include?(@roll_result)
 			@state = 'natural'
 			pass_line_payout(player, @roll_result)
-		elsif @roll_result == 2 || @roll_result == 3 || @roll_result == 12
+		elsif [2, 3, 12].include?(@roll_result)
 			@state = 'craps'
 		else 
 			@state = 'point'
@@ -51,7 +51,7 @@ class Round
 	end
 
 	def place_come_bet(player, roll_result)
-		unless roll_result == 2 || roll_result == 3 || roll_result == 12
+		unless [2, 3, 11, 12].include?(roll_result)
 			come_bet = {:amount => player.pending_come_bet, :point => roll_result}
 			player.come_bets = player.come_bets << come_bet
 		end
@@ -70,7 +70,7 @@ class Round
 		payout = 0
 		player.come_bets.each do |bet|
 			if bet[:point] == roll_result
-				payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount] unless roll_result == 11
+				payout += (bet[:amount] * PAYOUT_TABLE[bet[:point]]) + bet[:amount]
 				if state == :point
 					payout += !!bet[:odds] ? (bet[:odds] * PAYOUT_TABLE[bet[:point]]) + bet[:odds] : 0
 				elsif state == :comeout
