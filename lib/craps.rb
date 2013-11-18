@@ -79,7 +79,7 @@ class Craps
 	end
 
 	def enforce_pass_odds(player, round)
-		if !!player.pass_odds
+		unless player.pass_odds.nil?
 			puts 'You have already placed odds on your pass line bet.'
 			sleep(1) 
 			odds_prompt(player, round)
@@ -87,7 +87,7 @@ class Craps
 	end
 
 	def enforce_come_odds(player, round, bet)
-		if !!bet[:odds]
+		unless bet[:odds].nil?
 			puts 'You have already placed odds on this come bet.'
 			sleep(1) 
 			come_odds_prompt(player, round)
@@ -127,7 +127,7 @@ class Craps
 		come_bets = player.come_bets
 		come_odds = come_bets.collect { |bet| bet[:odds] }
 		come_odds = [nil] if come_odds == []
-		unless !!player.pass_odds && come_odds.compact.count == come_bets.count
+		if player.pass_odds.nil? && come_odds.compact.count != come_bets.count
 			puts "Would you like to place odds on your pass or come bets? (pass/come/n)"
 			responses = []
 			responses << gets.chomp
